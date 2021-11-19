@@ -133,7 +133,15 @@ class ECC():
         self.pub_a = (int(xa), int(ya))
         xb, yb = public[1].split(' ')
         self.pub_b = (int(xb), int(yb))
-    
+
+    def set_pub_key(self, pub):
+        self._public_file = pub
+        self.read_keys()
+
+    def set_pri_key(self, pri):
+        self._private_file = pri
+        self.read_keys()
+
     # Private keys
     def get_key_pri_a(self):
         return self.pri_a

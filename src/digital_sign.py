@@ -2,16 +2,20 @@ import os
 from sha import SHA, SHAEncoder, byte2hex
 from ecc import ECC, ECCEncoder
 import utility as util
-from constant import TEST_DIR, BEGIN_SIGN, END_SIGN
+from constant import TEST_DIR, CONFIG_DIR, BEGIN_SIGN, END_SIGN
 
 ecc = ECC()
 ecc_encoder = ECCEncoder()
 MSG_FILE = os.path.join(TEST_DIR, "msg.txt")
-SIGNED_FILE = os.path.join(TEST_DIR, "msg_signed.txt")
+SIGNED_FILE = os.path.join(TEST_DIR, "msg-signed.txt")
+PUB_FILE = os.path.join(CONFIG_DIR, "ecc-public.txt")
+PRI_FILE = os.path.join(CONFIG_DIR, "ecc-private.txt")
+ecc.initiate(generate_new_config=False, generate_new_keys=False)
 
-def sign_txt(filename = MSG_FILE, target = SIGNED_FILE):
+def sign_txt(filename = MSG_FILE, target = SIGNED_FILE, public_key = PUB_FILE):
     sha = SHA()
     sha_encoder = SHAEncoder()
+    ecc.set_pub_key(public_key)
 
     text = util.readtxt(filename)
     text = ''.join(text)
@@ -23,7 +27,6 @@ def sign_txt(filename = MSG_FILE, target = SIGNED_FILE):
     util.writetxt("test/ecc-input.txt", text_hash)
 
     ''' ENCRYPT HASH MESSAGE '''
-    ecc.initiate(generate_new_config=True, generate_new_keys=True)
     # ecc.show_info()
     encode_hash = ecc_encoder.encode()
     encrypted_hash = ecc.encrypt(encode_hash)
@@ -40,9 +43,10 @@ def sign_txt(filename = MSG_FILE, target = SIGNED_FILE):
 
     util.writetxt(target,''.join(text))
 
-def verify_sign(filename = SIGNED_FILE):
+def verify_sign(filename = SIGNED_FILE, private_key = PRI_FILE):
     sha = SHA()
     sha_encoder = SHAEncoder()
+    ecc.set_pri_key(private_key)
 
     ''' READ TEXT FILE '''
     text = util.readtxt(filename)

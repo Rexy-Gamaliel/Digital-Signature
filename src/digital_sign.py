@@ -12,10 +12,10 @@ PUB_FILE = os.path.join(CONFIG_DIR, "ecc-public.txt")
 PRI_FILE = os.path.join(CONFIG_DIR, "ecc-private.txt")
 ecc.initiate(generate_new_config=False, generate_new_keys=False)
 
-def sign_txt(filename = MSG_FILE, target = SIGNED_FILE, public_key = PUB_FILE):
+def sign_txt(filename = MSG_FILE, target = SIGNED_FILE, private_key = PRI_FILE):
     sha = SHA()
     sha_encoder = SHAEncoder()
-    ecc.set_pub_key(public_key)
+    ecc.set_pri_key(private_key)
 
     text = util.readtxt(filename)
     text = ''.join(text)
@@ -43,10 +43,10 @@ def sign_txt(filename = MSG_FILE, target = SIGNED_FILE, public_key = PUB_FILE):
 
     util.writetxt(target,''.join(text))
 
-def verify_sign(filename = SIGNED_FILE, private_key = PRI_FILE):
+def verify_sign(filename = SIGNED_FILE, public_key = PUB_FILE):
     sha = SHA()
     sha_encoder = SHAEncoder()
-    ecc.set_pri_key(private_key)
+    ecc.set_pub_key(public_key)
 
     ''' READ TEXT FILE '''
     text = util.readtxt(filename)

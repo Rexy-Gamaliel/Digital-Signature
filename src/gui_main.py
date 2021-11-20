@@ -1,5 +1,9 @@
 import PySimpleGUI as sg
+
 from gui_windows import *
+from gui_event_handlers import *
+
+from ecc import *
 
 '''
 Theme
@@ -23,15 +27,17 @@ Runner
 '''
 def run_gui():
 	window = sg.Window("Digital-Signature", all_windows, size=WIN_SIZE, element_justification="c")
+	ecc = ECC()
+	ecc.initiate(generate_new_config=True, generate_new_keys=True)
 
 	while True:
 		cur_events, cur_values = window.read()
 
-		if "Pembangkitan Kunci" in cur_events: # kalau tombol "Pembangkitan Kunci" ditekan
+		if "Pembangkitan Kunci" in cur_events:
 			window["window_main_menu"].update(visible=False)
 			window["window_keygen"].update(visible=True)
 
-		if "Pembangkitan Tanda Tangan Digital" in cur_events: # kalau tombol "Pembangkitan Tanda Tangan Digital" ditekan
+		if "Pembangkitan Tanda Tangan Digital" in cur_events:
 			window["window_main_menu"].update(visible=False)
 			window["window_signing"].update(visible=True)
 
@@ -39,18 +45,15 @@ def run_gui():
 			window["window_main_menu"].update(visible=False)
 			window["window_verifying"].update(visible=True)
 
+		if "Bangkitkan Kunci" in cur_events:
+			handle_event_keygen(window, cur_values, ecc)
+
 		if cur_values["signing_option_1"]:
-			# window["signature_filename"].update(visible=False)
-			# window["signature_file_picker"].update(visible=False)
-			# window["signature_text"].update(visible=False)
 			window["signature_option_container"].update(visible=False)
 		elif cur_values["signing_option_2"]:
-			# window["signature_text"].update(visible=True)
-			# window["signature_file_picker"].update(visible=True)
-			# window["signature_filename"].update(visible=True)
 			window["signature_option_container"].update(visible=True)
 
-		if "Kembali ke Menu Utama" in cur_events: # kalau tombol "Kembali ke Menu Utama" ditekan
+		if "Kembali ke Menu Utama" in cur_events:
 			window["window_keygen"].update(visible=False)
 			window["window_signing"].update(visible=False)
 			window["window_verifying"].update(visible=False)

@@ -19,7 +19,9 @@ ECC_RESULT = os.path.join(TEST_DIR, ECC_ENCRYPTION_OUTPUT_FILE)
 
 ecc.initiate(generate_new_config=False, generate_new_keys=False)
 
-def sign_txt(filename=MSG_FILE, target=SIGNED_FILE, private_key=PRI_FILE):
+def sign_txt(filename=MSG_FILE, target=SIGNED_FILE, private_key=PRI_FILE, pisah:bool=False):
+    # if pisah: target adalah file signature di-output
+    # else: target adalah file message+signature di-output
     sha = SHA()
     sha_encoder = SHAEncoder()
     ecc.set_pri_key(private_key)
@@ -44,15 +46,19 @@ def sign_txt(filename=MSG_FILE, target=SIGNED_FILE, private_key=PRI_FILE):
     signature = util.readtxt(ECC_RESULT)
 
     ''' SAVE SIGNATURE FILE '''
-    util.writetxt(f"{DEMO_DIR}/signature.sgn", ''.join(signature))
+    if pisah:
+        # only write signature to target
+        util.writetxt(target, ''.join(signature))
+        # util.writetxt(f"{DEMO_DIR}/signature.sgn", ''.join(signature))
+    else:
+        # only write message+signature (signed file) to target
+        ''' SAVE SIGNED FILE '''
+        text.append(BEGIN_SIGN + "\n")
+        for x in signature:
+            text.append(x)
+        text.append("\n" + END_SIGN)
 
-    ''' SAVE SIGNED FILE '''
-    text.append(BEGIN_SIGN + "\n")
-    for x in signature:
-        text.append(x)
-    text.append("\n" + END_SIGN)
-
-    util.writetxt(target,''.join(text))
+        util.writetxt(target,''.join(text))
 
 def verify_sign(filename = SIGNED_FILE, public_key = PUB_FILE):
     sha = SHA()

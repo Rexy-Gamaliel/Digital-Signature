@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 import os
 from digital_sign import *
 import utility as util
+from constant import DEMO_DIR
 
 '''
 Event Handlers
@@ -53,33 +54,44 @@ def handle_event_signing(values):
 		return
 	# buat tanda tangan digital
 	try:
-		signed_document = sign_txt( \
-			values["signing_document_filename"], \
-			values["signing_result_document_filename"], \
-			values["signing_private_key_filename"])
+		if values["signing_option_1"]:
+			sign_txt(
+				values["signing_document_filename"],
+				values["signing_result_document_filename"],
+				values["signing_private_key_filename"],
+				pisah=False
+			)
+			# os.remove(os.path.abspath(values["signing_result_document_filename"]))
+		else:
+			sign_txt(
+				values["signing_document_filename"],
+				values["signing_signature_filename"],
+				values["signing_private_key_filename"],
+				pisah=True
+			)
+			# os.remove(os.path.abspath(values["signing_signature_filename"]))
 	except:
 		sg.popup("Pembangkitan tanda tangan digital gagal!")
 		return
-
-	# simpan tanda tangan digital
-	if values["signing_option_1"]:
-		# simpan tanda tangan di dokumen
-		# secara default sudah dilakukan sign_txt()
-		pass
-	else:
-		# simpan tanda tangan secara terpisah
-		# ambil dan simpan file tanda tangan
-		try:
-			path = os.path.abspath("src/test/ecc-encrypted")
-			signature_content = ""
-			with open(path, "r") as file:
-				signature_content = file.read()
-			util.writetxt(values["signing_signature_filename"], signature_content)
-		except:
-			sg.popup("Penyimpanan tanda tangan digital gagal!")
-			return
-		# hapus hasil sign_txt()
-		os.remove(os.path.abspath(values["signing_result_document_filename"]))
+	# # simpan tanda tangan digital
+	# if values["signing_option_1"]:
+	# 	# simpan tanda tangan di dokumen
+	# 	# secara default sudah dilakukan sign_txt()
+	# 	pass
+	# else:
+	# 	# simpan tanda tangan secara terpisah
+	# 	# ambil dan simpan file tanda tangan
+	# 	try:
+	# 		path = os.path.abspath("src/demo/signature.sgn")
+	# 		signature_content = ""
+	# 		with open(path, "r") as file:
+	# 			signature_content = file.read()
+	# 		util.writetxt(values["signing_signature_filename"], signature_content)
+	# 	except:
+	# 		sg.popup("Penyimpanan tanda tangan digital gagal!")
+	# 		return
+	# 	# hapus hasil sign_txt()
+	# 	os.remove(os.path.abspath(values["signing_result_document_filename"]))
 
 	sg.popup("Tanda tangan digital berhasil disimpan!")
 

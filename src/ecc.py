@@ -185,12 +185,26 @@ class ECC():
         logging.info("===== PUBLIC KEYS =====")
         logging.info(f"pub_a = {self.pub_a}")
         logging.info(f"pub_b = {self.pub_b}")
-        # print(f"ECC equation: y^2 = x^3 + {self._a}x + {self._b}\np = {self._p}")
-        # print("===== PRIVATE KEYS =====")
-        # print(f"Starting point (PB): {self.point}")
-        # print(f"pri_a = {self.pri_a}\npri_b = {self.pri_b}\n{self.k = }")
-        # print("===== PUBLIC KEYS =====")
-        # print(f"pub_a = {self.pub_a}\npub_b = {self.pub_b}")
+    
+    def private_key_info(self):
+        result = ""
+        txt_a = f"+ {self._a}" if self._a > 0 else f"- {abs(self._a)}"
+        txt_b = f"+ {self._b}" if self._b > 0 else f"- {abs(self._b)}"
+        result += f"ECC equation: y^2 = x^3 {txt_a}x {txt_b}\n"
+        result += f"p = {self._p}\n"
+        result += "===== PRIVATE KEYS =====\n"
+        result += f"Starting point (PB): {self.point}\n"
+        result += f"Private key Alice = {self.pri_a}\n"
+        result += f"Private key Bob = {self.pri_b}\n"
+        return result
+    
+    def public_key_info(self):
+        result = ""
+        result += "===== PUBLIC KEYS =====\n"
+        result += f"Public key Alice = ({self.pub_a[0]}, {self.pub_a[1]})\n"
+        result += f"Public key Bob = ({self.pub_b[0]}, {self.pub_b[1]})\n"
+        return result
+
     
     def _y_square(self, x: int):
         return x**3 + self._a * x + self._b
@@ -510,7 +524,9 @@ def simulate_ecc():
     ecc = ECC()
 
     ecc.initiate(generate_new_config=True, generate_new_keys=True)
-    ecc.show_info()
+    # ecc.show_info()
+    print(ecc.private_key_info())
+    print(ecc.public_key_info())
 
     ecc_encoder = ECCEncoder()
     

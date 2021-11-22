@@ -7,7 +7,7 @@ import time
 import os
 from random import randrange
 from collections import defaultdict
-from constant import CONFIG_DIR, TEST_DIR
+from constant import CONFIG_DIR, TEST_DIR, ECC_PRIME_BIT, ECC_COEF_BIT
 
 ### DOING k randomly ###
 
@@ -33,9 +33,11 @@ class ECC():
         self._private_file = os.path.join(CONFIG_DIR, "ecc-private.txt")
         self._public_file = os.path.join(CONFIG_DIR, "ecc-public.txt")
         self._config_file = os.path.join(CONFIG_DIR, "ecc-config.txt")
-        self._test_input = os.path.join(TEST_DIR, "ecc-input.txt")
+        self._test_input = os.path.join(TEST_DIR, "msg.txt")
         self._test_encrypted = os.path.join(TEST_DIR, "ecc-encrypted.txt")
         self._test_decrypted = os.path.join(TEST_DIR, "ecc-decrypted.txt")
+        self.prime_bit = ECC_PRIME_BIT        # berapa bit prime p yang di-generate
+        self.coef_bit = ECC_COEF_BIT          # berapa bit koefisien elliptic curve yang di-generate
         if self.debug:
             level = logging.INFO
             fmt = '[%(levelname)s] - %(message)s'
@@ -44,7 +46,7 @@ class ECC():
         pass
     
     def update_config(self):
-        self.generate_config(prime_bit=128, coef_bit=16)
+        self.generate_config(prime_bit=self.prime_bit, coef_bit=self.coef_bit)
         self.store_config()
 
     def initiate(self, generate_new_config: bool, generate_new_keys: bool):
@@ -56,7 +58,11 @@ class ECC():
             self.update_keys()
         self.read_keys()
 
-    def generate_config(self, prime_bit:int=128, coef_bit:int=16):
+    def generate_config(self, prime_bit:int=None, coef_bit:int=None):
+        if prime_bit is None:
+            prime_bit = self.prime_bit
+        if coef_bit is None:
+            coef_bit = self.coef_bit
         self._a = randrange(-1 * (1<<coef_bit), 1<<coef_bit)
         self._b = randrange(-1 * (1<<coef_bit), 1<<coef_bit)
         generator = util.PrimeGenerator(prime_bit)
@@ -102,9 +108,10 @@ class ECC():
         self.store_keys()
 
     def generate_keys(self):
+        n_bits = self.prime_bit
         # Private keys
-        self.pri_a = randrange(1<<32)
-        self.pri_b = randrange(1<<32)
+        self.pri_a = randrange(1 << (n_bits - 1), 1 << n_bits)
+        self.pri_b = randrange(1 << (n_bits - 1), 1 << n_bits)
         # self.k = randrange(self._p)
         self.k = self._generate_k()
         self.point = self.determine_start_point()
@@ -146,7 +153,7 @@ class ECC():
     def get_key_pri_a(self):
         return self.pri_a
     def get_key_pri_b(self):
-        return self.pri_a
+        return self.pri_b
     def get_key_starting_point(self):
         return self.point
     def set_key_pri_a(self, a):
@@ -306,16 +313,17 @@ class ECC():
 class ECCEncoder():
     # Read per char, only accepts ASCII characters
     def __init__(self):
-        self.debug = True
+        self.debug = False
         self._config_file = f"{CONFIG_DIR}/ecc-config.txt"
         self._test_input = f"{TEST_DIR}/ecc-input.txt"
-        self._test_encrypted = f"{TEST_DIR}/ecc-encrypted"
+        self._test_encrypted = f"{TEST_DIR}/ecc-encrypted2.txt"
         self._test_decrypted = f"{TEST_DIR}/ecc-decrypted.txt"
         # self._test_input = f"{TEST_DIR}/ecc-input.txt"
         # self._test_encrypted = f"{TEST_DIR}/ecc-encrypted.txt"
         # self._test_decrypted = f"{TEST_DIR}/ecc-decrypted.txt"
         self.k = 10
         self.p = int(util.readfile(self._config_file).decode("utf-8").split(' ')[2])
+        self.encoding_byte_size = ECC_PRIME_BIT // 8
 
         if self.debug:
             level = logging.INFO
@@ -356,35 +364,119 @@ class ECCEncoder():
             result += chr(m)
         return result
     
+    def point2byte(self, point):
+        '''
+            [DESC]
+                Convert <point> (a list containing x and y value) into bytes
+                The x and y values are in the Gallois Field p,
+                where p is a prime number of size ECC_PRIME_BIT bits or ECC_PRIME_BIT//8 bytes
+                Each of these x and y values are then converted into a
+                bytes type of size ECC_PRIME_BIT//8 bytes
+                Add necessary b'\x00' bytes as padding in front of the converted values
+            [PARAMS]
+                point: list[int, int]   { a point from the ECC ecnryption result }
+            [RETURN]
+                a bytes value from the point conversion
+        '''
+        x_val = point[0]
+        y_val = point[1]
+        x_byte = util.hex2byte(hex(x_val)[2:])
+        y_byte = util.hex2byte(hex(y_val)[2:])
+        # try:
+        #     x_byte = util.hex2byte(hex(x_val)[2:])
+        #     y_byte = util.hex2byte(hex(y_val)[2:])
+        # except:
+        #     logging.warning("x_val: " + x_val)
+        #     logging.warning("y_val: " + y_val)
+        #     exit(1)
+
+        # Add padding
+        x_req_padding_bytes = self.encoding_byte_size - len(x_byte)
+        x_byte = b'\x00' * x_req_padding_bytes + x_byte
+        y_req_padding_bytes = self.encoding_byte_size - len(y_byte)
+        y_byte = b'\x00' * y_req_padding_bytes + y_byte
+
+        return x_byte + y_byte
+    
+    def byte2point(self, byte: bytes):
+        '''
+            [DESC]
+                Convert <byte> back into a point of x and y value
+                <byte>'s size is 2 * (ECC_PRIME_BIT // 8) bytes
+                These x and y values is then used for ECC decryption
+            [PARAMS]
+                byte: bytes     { containing the x and y values in bytes type }
+            [RETURN]
+                a point (list of x and y value)
+        '''
+        x_byte = byte[:self.encoding_byte_size]
+        y_byte = byte[self.encoding_byte_size:]
+        x_int = int.from_bytes(x_byte, 'big')
+        y_int = int.from_bytes(y_byte, 'big')
+        point = [x_int, y_int]
+        return point
+    
     def write_encrpyted(self, encrypted):
-        result = ""
+        '''"""
+            [DESC]
+                Parse encrypted into bytes to be written into a file
+                encrypted is the ecc result in the form of list of pairs of 2 Point
+                    Each point has (x, y) value which is in the Gallois Field p
+                    So, 1 <= x, y <= p-1
+                Since we know that p is a ECC_PRIME_BIT bit prime number, we can
+                encode each of these x and y values into ECC_PRIME_BIT bytes
+            [PARAMS]
+                encrypted: list[Point, Point]   { the result of ECC cipher process }
+        '''
+        result = b""
         for pair in encrypted:
             point0 = pair[0]
             point1 = pair[1]
-            # point00 = util.int2byte(point0[0])
-            # point01 = util.int2byte(point0[1])
-            # point10 = util.int2byte(point1[0])
-            # point11 = util.int2byte(point1[1])
-            result += f"{point0[0]} {point0[1]} {point1[0]} {point1[1]}"
+            point0_byte = self.point2byte(point0)
+            point1_byte = self.point2byte(point1)
+            result += point0_byte + point1_byte
             # result += f"{point0[0]} {point0[1]} {point1[0]} {point1[1]}"
-            result += "\n"
-        result = result.encode()
-        util.writefile(self._test_encrypted, result)
-        # util.writetxt(self._test_encrypted, result)
+            # result += "\n"
+        # result = result.encode()
+        result = util.byte2hex(result)
+        # util.writefile(self._test_encrypted, result)
+        util.writetxt(self._test_encrypted, result)
     
     def read_encrypted(self):
-        b = util.readfile(self._test_encrypted)
-        lines = b.decode().split('\n')[:-1]
+        '''
+            [DESC]
+                Reads from ecc-encrypted.txt to be decoded into
+                list of pairs of 2 points
+                Parse each item in the file by ECC_PRIME_BIT bytes
+                For each 4 items, they will be decoded into
+                the (x, y) values for the pair of 2 points
+        '''
+        # b = util.readfile(self._test_encrypted)
+        b = util.readtxt(self._test_encrypted)
+        b = ''.join([e for e in b])
+        b = util.hex2byte(b)
+        # lines = b.decode().split('\n')[:-1]
         # lines = util.readtxt(self._test_encrypted)
         result = []
-        for line in lines:
-            point00, point01, point10, point11 = [int(i) for i in line.split(' ')]
-            # point00 = util.str2int(point00)
-            # point01 = util.str2int(point01)
-            # point10 = util.str2int(point10)
-            # point11 = util.str2int(point11)
+        point_size = 2 * self.encoding_byte_size    # in bytes
+        pair_size = 2 * point_size                 # in bytes
+        n_pair = len(b) // pair_size
 
-            result.append([(point00, point01), (point10, point11)])
+        for i in range(n_pair):
+            # Read a pair of points
+            offset = i * pair_size
+            # Read point 0
+            point0_byte = b[offset : offset + point_size]
+            point0 = self.byte2point(point0_byte)
+            # Read point 1
+            point1_byte = b[offset + point_size : offset + 2 * point_size]
+            point1 = self.byte2point(point1_byte)
+
+            result.append([point0, point1])
+        # for line in lines:
+        #     point00, point01, point10, point11 = [int(i) for i in line.split(' ')]
+
+        #     result.append([(point00, point01), (point10, point11)])
         return result
 
 
@@ -421,24 +513,52 @@ def simulate_ecc():
     ecc.show_info()
 
     ecc_encoder = ECCEncoder()
-    result = ecc_encoder.encode()
-    # print(result)
-    encrypted = ecc.encrypt(result)
-    # print(encrypted)
+    
+    encoded_message = ecc_encoder.encode()
+    logging.info(f"Encoded message -> points ({len(encoded_message)}):")
+    for i, item in enumerate(encoded_message[:10]):
+        print(f"{i})       {item}")
+
+    encrypted = ecc.encrypt(encoded_message)
+    logging.info(f"Encrypted ({len(encrypted)}):")
+    for i, item in enumerate(encrypted[:10]):
+        print(f"{i})       {item}")
     ecc_encoder.write_encrpyted(encrypted)
 
+    logging.info("##### ENCRYPTION END #####")
     # = = = = = =
-    ret = ecc_encoder.read_encrypted()
-    points = ecc.decrypt(ret)
-    plaintext = ecc_encoder.decode(points)
+    logging.info("##### DECRYPTION START #####")
+    decoded_ciphertext = ecc_encoder.read_encrypted()
+    logging.info(f"Retrieved encrypted bin -> list ({len(decoded_ciphertext)}):")
+    for i, item in enumerate(decoded_ciphertext[:10]):
+        print(f"{i})       {item}")
+    
+    decrypted_ciphertext = ecc.decrypt(decoded_ciphertext)
+    logging.info(f"ECC decrypted ciphertext points -> points of encoded message ({len(decrypted_ciphertext)}):")
+    for i, item in enumerate(decrypted_ciphertext[:10]):
+        print(f"{i})       {item}")
+    
+    plaintext = ecc_encoder.decode(decrypted_ciphertext)
 
-    print(plaintext)
+    logging.info("Plaintext: " + plaintext)
     util.writetxt("test/ecc-decrypted.txt", plaintext)
 
     # PC = [ (kB), (PM + kPB) ] = [ (kB), (PM + kbB) ]
     # PB = bB
 
+def point_byte_test():
+    eccc = ECCEncoder()
+    point = (5105610199983925356685096756448124416198892764601618299306045273471290546495, 38477108760889943752512839604849054809420737740480385215215238249923595437515)
+    print(point)
+    res = eccc.point2byte(point)
+    print(res)
+    res2 = eccc.byte2point(res)
+    print(res2)
+
+    pass
+
 if __name__ == "__main__":
     # ecc_demo()
-    setup_logger()
+    # setup_logger()
     simulate_ecc()
+    # point_byte_test()

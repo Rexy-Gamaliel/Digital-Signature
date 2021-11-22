@@ -2,4 +2,6 @@ CONFIG_DIR = "config"
 TEST_DIR = "test"
 BEGIN_SIGN = "---- BEGIN SIGNATURE ----"
 END_SIGN = "---- END SIGNATURE ----"
+ECC_PRIME_BIT = 128
+ECC_COEF_BIT = 16
 # SIZE_T = 64

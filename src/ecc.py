@@ -8,6 +8,8 @@ import os
 from random import randrange
 from collections import defaultdict
 from constant import CONFIG_DIR, TEST_DIR, ECC_PRIME_BIT, ECC_COEF_BIT
+from constant import ECC_ENCRYPTION_OUTPUT_FILE, ECC_DECRYPTION_OUTPUT_FILE, ECC_TEST_INPUT_FILE
+from constant import ECC_CONFIG_FILE, ECC_PRIVATE_KEY_FILE, ECC_PUBLIC_KEY_FILE
 
 ### DOING k randomly ###
 
@@ -24,18 +26,12 @@ INFPOINT = (None, None)
 class ECC():
     def __init__(self):
         self.debug = True      # Change to True to show log
-        # self._private_file = f"{CONFIG_DIR}/ecc-private.txt"
-        # self._public_file = f"{CONFIG_DIR}/ecc-public.txt"
-        # self._config_file = f"{CONFIG_DIR}/ecc-config.txt"
-        # self._test_input = f"{TEST_DIR}/ecc-input.txt"
-        # self._test_encrypted = f"{TEST_DIR}/ecc-encrypted.txt"
-        # self._test_decrypted = f"{TEST_DIR}/ecc-decrypted.txt"
-        self._private_file = os.path.join(CONFIG_DIR, "ecc-private.txt")
-        self._public_file = os.path.join(CONFIG_DIR, "ecc-public.txt")
-        self._config_file = os.path.join(CONFIG_DIR, "ecc-config.txt")
+        self._private_file = os.path.join(CONFIG_DIR, ECC_PRIVATE_KEY_FILE)
+        self._public_file = os.path.join(CONFIG_DIR, ECC_PUBLIC_KEY_FILE)
+        self._config_file = os.path.join(CONFIG_DIR, ECC_CONFIG_FILE)
         self._test_input = os.path.join(TEST_DIR, "msg.txt")
-        self._test_encrypted = os.path.join(TEST_DIR, "ecc-encrypted.txt")
-        self._test_decrypted = os.path.join(TEST_DIR, "ecc-decrypted.txt")
+        self._test_encrypted = os.path.join(TEST_DIR, ECC_ENCRYPTION_OUTPUT_FILE)
+        self._test_decrypted = os.path.join(TEST_DIR, ECC_DECRYPTION_OUTPUT_FILE)
         self.prime_bit = ECC_PRIME_BIT        # berapa bit prime p yang di-generate
         self.coef_bit = ECC_COEF_BIT          # berapa bit koefisien elliptic curve yang di-generate
         if self.debug:
@@ -328,14 +324,14 @@ class ECCEncoder():
     # Read per char, only accepts ASCII characters
     def __init__(self):
         self.debug = False
-        self._config_file = f"{CONFIG_DIR}/ecc-config.txt"
-        self._test_input = f"{TEST_DIR}/ecc-input.txt"
-        self._test_encrypted = f"{TEST_DIR}/ecc-encrypted2.txt"
-        self._test_decrypted = f"{TEST_DIR}/ecc-decrypted.txt"
+        self._config_file = f"{CONFIG_DIR}/{ECC_CONFIG_FILE}"
+        self._test_input = f"{TEST_DIR}/{ECC_TEST_INPUT_FILE}"
+        self._test_encrypted = f"{TEST_DIR}/{ECC_ENCRYPTION_OUTPUT_FILE}"
+        self._test_decrypted = f"{TEST_DIR}/{ECC_DECRYPTION_OUTPUT_FILE}"
         # self._test_input = f"{TEST_DIR}/ecc-input.txt"
         # self._test_encrypted = f"{TEST_DIR}/ecc-encrypted.txt"
         # self._test_decrypted = f"{TEST_DIR}/ecc-decrypted.txt"
-        self.k = 10
+        self.k = 13
         self.p = int(util.readfile(self._config_file).decode("utf-8").split(' ')[2])
         self.encoding_byte_size = ECC_PRIME_BIT // 8
 
@@ -557,7 +553,7 @@ def simulate_ecc():
     plaintext = ecc_encoder.decode(decrypted_ciphertext)
 
     logging.info("Plaintext: " + plaintext)
-    util.writetxt("test/ecc-decrypted.txt", plaintext)
+    util.writetxt(f"{TEST_DIR}/{ECC_DECRYPTION_OUTPUT_FILE}", plaintext)
 
     # PC = [ (kB), (PM + kPB) ] = [ (kB), (PM + kbB) ]
     # PB = bB

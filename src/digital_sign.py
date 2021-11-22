@@ -3,14 +3,16 @@ from sha import SHA, SHAEncoder
 from ecc import ECC, ECCEncoder
 import utility as util
 from constant import TEST_DIR, CONFIG_DIR, BEGIN_SIGN, END_SIGN
+from constant import ECC_ENCRYPTION_OUTPUT_FILE, ECC_DECRYPTION_OUTPUT_FILE, ECC_TEST_INPUT_FILE
+from constant import ECC_CONFIG_FILE, ECC_PRIVATE_KEY_FILE, ECC_PUBLIC_KEY_FILE
 
 ecc = ECC()
 ecc_encoder = ECCEncoder()
 MSG_FILE = os.path.join(TEST_DIR, "msg.txt")
 SIGNED_FILE = os.path.join(TEST_DIR, "msg-signed.txt")
 SIGN_FILE = os.path.join(TEST_DIR, "sign")
-PUB_FILE = os.path.join(CONFIG_DIR, "ecc-public.txt")
-PRI_FILE = os.path.join(CONFIG_DIR, "ecc-private.txt")
+PUB_FILE = os.path.join(CONFIG_DIR, ECC_PUBLIC_KEY_FILE)
+PRI_FILE = os.path.join(CONFIG_DIR, ECC_PRIVATE_KEY_FILE)
 ecc.initiate(generate_new_config=False, generate_new_keys=False)
 
 def sign_txt(filename = MSG_FILE, target = SIGNED_FILE, private_key = PRI_FILE):
@@ -25,7 +27,7 @@ def sign_txt(filename = MSG_FILE, target = SIGNED_FILE, private_key = PRI_FILE):
     ''' HASH MSG '''
     text_hash = util.byte2hex(sha.hash(bytes_text))
 
-    util.writetxt("test/ecc-input.txt", text_hash)
+    util.writetxt(f"{TEST_DIR}/{ECC_TEST_INPUT_FILE}", text_hash)
 
     ''' ENCRYPT HASH MESSAGE '''
     # ecc.show_info()
@@ -35,7 +37,7 @@ def sign_txt(filename = MSG_FILE, target = SIGNED_FILE, private_key = PRI_FILE):
 
     ''' MAKE SIGNATURE FILE '''
     text = util.readtxt(filename)
-    signature = util.readtxt("test/ecc-encrypted")
+    signature = util.readtxt(f"{TEST_DIR}/ecc-encrypted")
 
     ''' SAVE SIGNATURE FILE '''
     util.writetxt("test/sign", ''.join(signature))
@@ -67,7 +69,7 @@ def verify_sign(filename = SIGNED_FILE, public_key = PUB_FILE):
     hash_msg = util.byte2hex(sha.hash(bytes_msg))
 
     ''' GET DECRYPTED SIGNATURE '''
-    util.writetxt("test/ecc-encrypted", signature)
+    util.writetxt(f"{TEST_DIR}/ecc-encrypted", signature)
     ret = ecc_encoder.read_encrypted()
     points = ecc.decrypt(ret)
     decrypted_sign = ecc_encoder.decode(points)
@@ -94,7 +96,7 @@ def verify_sign_with_file(filename = MSG_FILE, sign = SIGN_FILE, public_key = PU
     signature = util.readtxt(sign)
     
     ''' GET DECRYPTED SIGNATURE '''
-    util.writetxt("test/ecc-encrypted", ''.join(signature))
+    util.writetxt(f"{TEST_DIR}/ecc-encrypted", ''.join(signature))
     ret = ecc_encoder.read_encrypted()
     points = ecc.decrypt(ret)
     decrypted_sign = ecc_encoder.decode(points)

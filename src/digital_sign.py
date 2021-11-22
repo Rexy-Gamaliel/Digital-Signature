@@ -8,6 +8,7 @@ ecc = ECC()
 ecc_encoder = ECCEncoder()
 MSG_FILE = os.path.join(TEST_DIR, "msg.txt")
 SIGNED_FILE = os.path.join(TEST_DIR, "msg-signed.txt")
+SIGN_FILE = os.path.join(TEST_DIR, "sign")
 PUB_FILE = os.path.join(CONFIG_DIR, "ecc-public.txt")
 PRI_FILE = os.path.join(CONFIG_DIR, "ecc-private.txt")
 ecc.initiate(generate_new_config=False, generate_new_keys=False)
@@ -36,6 +37,10 @@ def sign_txt(filename = MSG_FILE, target = SIGNED_FILE, private_key = PRI_FILE):
     text = util.readtxt(filename)
     signature = util.readtxt("test/ecc-encrypted")
 
+    ''' SAVE SIGNATURE FILE '''
+    util.writetxt("test/sign", ''.join(signature))
+
+    ''' SAVE SIGNED FILE '''
     text.append(BEGIN_SIGN + "\n")
     for x in signature:
         text.append(x)
@@ -72,10 +77,41 @@ def verify_sign(filename = SIGNED_FILE, public_key = PUB_FILE):
     else:
         return False
 
+def verify_sign_with_file(filename = MSG_FILE, sign = SIGN_FILE, public_key = PUB_FILE):
+    sha = SHA()
+    sha_encoder = SHAEncoder()
+    ecc.set_pub_key(public_key)
+
+    ''' READ TEXT FILE '''
+    text = util.readtxt(filename)
+    msg = ''.join(text)
+
+    ''' GET HASH MESSAGE '''
+    bytes_msg = msg.encode('utf-8')
+    hash_msg = byte2hex(sha.hash(bytes_msg))
+
+    ''' GET SIGN FILE '''
+    signature = util.readtxt(sign)
+    msg = ''.join(text)
+    
+    ''' GET DECRYPTED SIGNATURE '''
+    util.writetxt("test/ecc-encrypted", ''.join(signature))
+    ret = ecc_encoder.read_encrypted()
+    points = ecc.decrypt(ret)
+    decrypted_sign = ecc_encoder.decode(points)
+
+    if hash_msg == decrypted_sign:
+        return True
+    else:
+        return False
+
 def simulate_sign():
     sign_txt()
     result = verify_sign()
+    result2 = verify_sign_with_file()
     print("Verifying result : " + str(result))
+    print("Verifying result with sign file: " + str(result2))
+
 
 if __name__ == "__main__":
     simulate_sign()

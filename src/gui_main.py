@@ -29,7 +29,7 @@ Runner
 def run_gui():
 	window = sg.Window("Digital-Signature", all_windows, size=WIN_SIZE, element_justification="c")
 	ecc = ECC()
-	ecc.initiate(generate_new_config=True, generate_new_keys=True)
+	ecc.initiate(generate_new_config=False, generate_new_keys=False)
 
 	while True:
 		cur_events, cur_values = window.read()
@@ -100,7 +100,6 @@ def run_gui():
 			window["verifying_signature_picker_container"].update(visible=False)
 		else:
 			window["verifying_signature_picker_container"].update(visible=True)
-			window["verifying_signature_filename"].update("")
 
 		if "Verifikasi tanda tangan digital" in cur_events:
 			handle_event_verifying(cur_values)

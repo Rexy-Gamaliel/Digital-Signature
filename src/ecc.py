@@ -330,7 +330,7 @@ class ECCEncoder():
         self.debug = False
         self._config_file = f"{CONFIG_DIR}/ecc-config.txt"
         self._test_input = f"{TEST_DIR}/ecc-input.txt"
-        self._test_encrypted = f"{TEST_DIR}/ecc-encrypted2.txt"
+        self._test_encrypted = f"{TEST_DIR}/ecc-encrypted.txt"
         self._test_decrypted = f"{TEST_DIR}/ecc-decrypted.txt"
         # self._test_input = f"{TEST_DIR}/ecc-input.txt"
         # self._test_encrypted = f"{TEST_DIR}/ecc-encrypted.txt"

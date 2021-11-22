@@ -92,14 +92,14 @@ window_verifying = [
 		[sg.Radio("Tanda tangan berada di file dokumen", "verifying_option", key="verifying_option_1", enable_events=True)],
 		[sg.Radio("Tanda tangan berada di file terpisah", "verifying_option", key="verifying_option_2", enable_events=True, default=True)],
 		[sg.Column([
-			[sg.Text("File dokumen:")],
+			[sg.Text("File Dokumen:")],
 			[
 				sg.FileBrowse(target="verifying_document_filename", button_text="Pilih File", size=BTN_SIZE_2), 
 				sg.InputText(key="verifying_document_filename", disabled=True, size=BTN_SIZE_2)
 			],
 		])],
 		[sg.Column([
-			[sg.Text("File tanda tangan:")],
+			[sg.Text("File Tanda Tangan:")],
 			[
 				sg.FileBrowse(target="verifying_signature_filename", button_text="Pilih file", size=BTN_SIZE_2, file_types=(("digital signature", "*.sgn"),)), 
 				sg.InputText(key="verifying_signature_filename", disabled=True, size=BTN_SIZE_2)

@@ -108,7 +108,9 @@ class ECC():
         # Private keys
         self.pri_a = randrange(1 << (n_bits - 1), 1 << n_bits)
         self.pri_b = randrange(1 << (n_bits - 1), 1 << n_bits)
-        # self.k = randrange(self._p)
+        while (4*(self.pri_a**3) + 27*(self.pri_b**2) == 0):
+            self.pri_a = randrange(1 << (n_bits - 1), 1 << n_bits)
+            self.pri_b = randrange(1 << (n_bits - 1), 1 << n_bits)
         self.k = self._generate_k()
         self.point = self.determine_start_point()
 

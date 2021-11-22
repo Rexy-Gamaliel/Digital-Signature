@@ -62,6 +62,8 @@ def verify_sign(filename = SIGNED_FILE, public_key = PUB_FILE):
 
     ''' SPLIT MESSAGE AND SIGNATURE '''
     split = str_text.split(BEGIN_SIGN + "\n")
+    if len(split) < 2:
+        return False
     msg = split[0]
     signature = split[1].split("\n" + END_SIGN)[0]
 
@@ -108,7 +110,7 @@ def verify_sign_with_file(filename = MSG_FILE, sign = SIGN_FILE, public_key = PU
         return False
 
 def simulate_sign():
-    sign_txt()
+    #    sign_txt()
     result = verify_sign()
     result2 = verify_sign_with_file()
     print("Verifying result : " + str(result))

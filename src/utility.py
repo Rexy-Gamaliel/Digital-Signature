@@ -155,6 +155,7 @@ def writefile(directory, content):
 def readtxt(directory):
     # !file directory is relative to project folder (public-key-cipher)!
     filename = os.path.join(dirname, directory)
+    # print(filename)
     with open(filename, 'r') as file:
         return file.readlines()
 

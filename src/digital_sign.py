@@ -92,6 +92,8 @@ def verify_sign_with_file(filename = MSG_FILE, sign = SIGN_FILE, public_key = PU
 
     ''' GET SIGN FILE '''
     signature = util.readtxt(sign)
+    # print("signature:")
+    # print(signature)
     
     ''' GET DECRYPTED SIGNATURE '''
     util.writetxt("test/ecc-encrypted", ''.join(signature))

@@ -10,18 +10,15 @@ Event Handlers
 # Keygen
 
 def handle_event_keygen(window, values, ecc):
-	ecc.generate_keys()
-	private_key_string = \
-		str(ecc.get_config_a()) + " " + \
-		str(ecc.get_config_b()) + " " + \
-		str(ecc.get_config_p()) + "\n" + \
-		str(ecc.get_key_pri_a()) + " " + \
-		str(ecc.get_key_pri_b())
-	public_key_a = ecc.get_key_point_a()
-	public_key_b = ecc.get_key_point_b()
-	public_key_string = str(public_key_a[0]) + " " + str(public_key_a[1]) + "\n" + str(public_key_b[0]) + " " + str(public_key_b[1])
-	window["keygen_private_key"].update(private_key_string)
-	window["keygen_public_key"].update(public_key_string)
+	ecc.update_keys()
+	private_key = ""
+	with open(os.path.abspath("src/config/ecc-private.txt"), "r") as file:
+		private_key = file.read()
+	public_key = ""
+	with open(os.path.abspath("src/config/ecc-public.txt"), "r") as file:
+		public_key = file.read()
+	window["keygen_private_key"].update(private_key)
+	window["keygen_public_key"].update(public_key)
 
 def handle_event_save_private_key(values):
 	try:
@@ -68,11 +65,7 @@ def handle_event_signing(values):
 		# simpan tanda tangan secara terpisah
 		# ambil dan simpan file tanda tangan
 		try:
-			# signature_content = util.readtxt(os.path.join(os.path.abspath(), "src/test/ecc-encrypted"))
-			print("yey")
-			print(os.path.abspath("src/test/ecc-encrypted"))
 			path = os.path.abspath("src/test/ecc-encrypted")
-			print(path)
 			signature_content = ""
 			with open(path, "r") as file:
 				signature_content = file.read()
@@ -81,6 +74,7 @@ def handle_event_signing(values):
 			sg.popup("Penyimpanan tanda tangan digital gagal!")
 			return
 		# hapus hasil sign_txt()
+		os.remove(os.path.abspath(values["signing_result_document_filename"]))
 
 	sg.popup("Tanda tangan digital berhasil disimpan!")
 
@@ -103,14 +97,22 @@ def handle_event_verifying(values):
 	if values["verifying_option_1"]:
 		# tanda tangan ada di file dokumen
 		document_filename = values["verifying_document_filename"]
-		public_key_filename = values["verifying_public_key_filename"] 
-		res = verify_sign(document_filename, public_key_filename)
+		public_key_filename = values["verifying_public_key_filename"]
+		try:
+			res = verify_sign(document_filename, public_key_filename)
+		except:
+			sg.popup("Tanda tangan digital tidak otentik!")
+			return
 	else:
 		# tanda tangan ada di file terpisah
 		document_filename = values["verifying_document_filename"]
 		signature_filename = values["verifying_signature_filename"]
-		public_key_filename = values["verifying_public_key_filename"] 
-		res = verify_sign_with_file(document_filename, signature_filename, public_key_filename)
+		public_key_filename = values["verifying_public_key_filename"]
+		try:
+			res = verify_sign_with_file(document_filename, signature_filename, public_key_filename)
+		except:
+			sg.popup("Tanda tangan digital tidak otentik!")
+			return
 	if res:
 		sg.popup("Tanda tangan digital otentik!")
 	else:

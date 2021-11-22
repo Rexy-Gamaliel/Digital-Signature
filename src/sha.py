@@ -7,11 +7,10 @@ class SHA():
         [DESC]
             SHA 256 hash algorithm, according to Wikipedia
             https://en.wikipedia.org/wiki/SHA-2#Pseudocode
-            NB: Result may differ from 
     '''
     def __init__(self):
         self.debug = False
-        self.nice = True
+        self.nice = True    # Don't change to False yet as it is currently not implemented
         self._hash_values = self.__init_hash_values()
         self._table = self.__init_table()
 
@@ -440,31 +439,6 @@ class NiceBytes(bytes):
     def right_rotate(self, n: int):
         return NiceBytes(SHA.right_rotate(self, n))
 
-
-""" For testing purpose """
-def hex2byte(inp):
-    '''
-        Hex string to bytes
-        e.g.: 'ab' -> b'\xab'
-              'abcd' -> b'\xab\xcd'
-    '''
-    r = b''
-    for i in range(32):
-        r += int.to_bytes(int(inp[i*2:(i+1)*2], 16), 1, 'big')
-    return r
-
-""" For testing purpose """
-def byte2hex(inp):
-    '''
-        Bytes
-        e.g.: b'\xab' -> 'ab'
-              b'\xab\xcd' -> 'abcd'
-    '''
-    r = ''
-    for b in inp:
-        b_int = b
-        r += hex(b_int//16)[2] + hex(b_int%16)[2]
-    return r
 
 def test():    
     b1 = NiceBytes(b'\x4e')

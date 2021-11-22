@@ -1,5 +1,5 @@
 import os
-from sha import SHA, SHAEncoder, byte2hex
+from sha import SHA, SHAEncoder
 from ecc import ECC, ECCEncoder
 import utility as util
 from constant import TEST_DIR, CONFIG_DIR, BEGIN_SIGN, END_SIGN
@@ -23,7 +23,7 @@ def sign_txt(filename = MSG_FILE, target = SIGNED_FILE, private_key = PRI_FILE):
     bytes_text = text.encode('utf-8')
 
     ''' HASH MSG '''
-    text_hash = byte2hex(sha.hash(bytes_text))
+    text_hash = util.byte2hex(sha.hash(bytes_text))
 
     util.writetxt("test/ecc-input.txt", text_hash)
 
@@ -64,7 +64,7 @@ def verify_sign(filename = SIGNED_FILE, public_key = PUB_FILE):
 
     ''' GET HASH MESSAGE '''
     bytes_msg = msg.encode('utf-8')
-    hash_msg = byte2hex(sha.hash(bytes_msg))
+    hash_msg = util.byte2hex(sha.hash(bytes_msg))
 
     ''' GET DECRYPTED SIGNATURE '''
     util.writetxt("test/ecc-encrypted", signature)
@@ -88,7 +88,7 @@ def verify_sign_with_file(filename = MSG_FILE, sign = SIGN_FILE, public_key = PU
 
     ''' GET HASH MESSAGE '''
     bytes_msg = msg.encode('utf-8')
-    hash_msg = byte2hex(sha.hash(bytes_msg))
+    hash_msg = util.byte2hex(sha.hash(bytes_msg))
 
     ''' GET SIGN FILE '''
     signature = util.readtxt(sign)

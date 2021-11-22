@@ -116,14 +116,33 @@ class ECC():
         self.pub_a = self.multiply_point(self.point, self.pri_a)
         self.pub_b = self.multiply_point(self.point, self.pri_b)
     
-    def store_keys(self):
+    def store_keys(self, privatefilepath=None, publicfilepath=None):
+        if privatefilepath is None:
+            privatefilepath = self._private_file
+        if publicfilepath is None:
+            publicfilepath = self._public_file
+        
         private = f"{self.pri_a} {self.pri_b} {self.k}\n"
         private += f"{self.point[0]} {self.point[1]}"
-        util.writetxt(self._private_file, private)
+        util.writetxt(privatefilepath, private)
 
         public = f"{self.pub_a[0]} {self.pub_a[1]}\n"
         public += f"{self.pub_b[0]} {self.pub_b[1]}"
-        util.writetxt(self._public_file, public)
+        util.writetxt(publicfilepath, public)
+    
+    def store_private_keys(self, filepath=None):
+        if filepath is None:
+            filepath = self._private_file
+        private = f"{self.pri_a} {self.pri_b} {self.k}\n"
+        private += f"{self.point[0]} {self.point[1]}"
+        util.writetxt(filepath, private)
+    
+    def store_public_keys(self, filepath=None):
+        if filepath is None:
+            filepath = self._public_file
+        public = f"{self.pub_a[0]} {self.pub_a[1]}\n"
+        public += f"{self.pub_b[0]} {self.pub_b[1]}"
+        util.writetxt(filepath, public)
     
     def read_keys(self):
         private = util.readtxt(self._private_file)

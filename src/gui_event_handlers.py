@@ -9,29 +9,34 @@ Event Handlers
 
 # Keygen
 
-def handle_event_keygen(window, values, ecc):
+def handle_event_keygen(window, values, ecc: ECC):
 	ecc.update_keys()
+	ecc.read_keys()
 	private_key = ""
-	with open(os.path.abspath("src/config/ecc-private.txt"), "r") as file:
-		private_key = file.read()
+	private_key = ecc.private_key_info()
+	# with open(os.path.abspath("src/config/ecc-private.txt"), "r") as file:
+	# 	private_key = file.read()
 	public_key = ""
-	with open(os.path.abspath("src/config/ecc-public.txt"), "r") as file:
-		public_key = file.read()
+	public_key = ecc.public_key_info()
+	# with open(os.path.abspath("src/config/ecc-public.txt"), "r") as file:
+	# 	public_key = file.read()
 	window["keygen_private_key"].update(private_key)
 	window["keygen_public_key"].update(public_key)
 
-def handle_event_save_private_key(values):
+def handle_event_save_private_key(values, ecc: ECC):
 	try:
-		with open(values["keygen_private_key_filename"], "w") as file:
-			file.write(values["keygen_private_key"])
+		# with open(values["keygen_private_key_filename"], "w") as file:
+		# 	file.write(values["keygen_private_key"])
+		ecc.store_private_keys(values["keygen_private_key_filename"])
 		sg.popup("Kunci privat berhasil disimpan!")
 	except:
 		sg.popup("Penyimpanan gagal!")
 
-def handle_event_save_public_key(values):
+def handle_event_save_public_key(values, ecc: ECC):
 	try:
-		with open(values["keygen_public_key_filename"], "w") as file:
-			file.write(values["keygen_public_key"])
+		# with open(values["keygen_public_key_filename"], "w") as file:
+		# 	file.write(values["keygen_public_key"])
+		ecc.store_public_keys(values["keygen_public_key_filename"])
 		sg.popup("Kunci publik berhasil disimpan!")
 	except:
 		sg.popup("Penyimpanan gagal!")

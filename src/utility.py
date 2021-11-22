@@ -2,6 +2,7 @@ import os
 import random
 import time
 import logging
+from math import ceil
 
 class PrimeGenerator():
     '''
@@ -172,6 +173,42 @@ def int2byte(i: int):
     # import math
     length = i.bit_length() // 8
     return i.to_bytes(length, byteorder='little')
+
+""" For testing purpose """
+def hex2byte(inp):
+    '''
+        Hex string to bytes
+        e.g.: 'ab' -> b'\xab'
+              'abcd' -> b'\xab\xcd'
+              'abc' -> b'\x0a\xbc'
+    '''
+    # r = b''
+    # n_hex = len(inp)
+    # if n_hex % 2 == 0:
+    #     for i in range(n_hex//2)[::-1]:
+    #         int_val = int(inp[i-1], 16) * 16 + int(inp[i], 16)
+    #         byte_val = int.to_bytes(int_val, 1, 'big')
+    # i = n_hex - 1
+    # while i > 0:
+    #     val = int(inp[i], 16)
+    #     r = int.to_bytes(, 1, 'big') + r
+    # return r
+    return int.to_bytes(int(inp, 16), ceil(len(inp)/2), 'big')
+
+""" For testing purpose """
+def byte2hex(inp):
+    '''
+        Bytes
+        e.g.: b'\xab' -> 'ab'
+              b'\xab\xcd' -> 'abcd'
+              b'\x0a\xbc' -> 'abc'
+    '''
+    # r = ''
+    # for b in inp:
+    #     b_int = b
+    #     r += hex(b_int//16)[2] + hex(b_int%16)[2]
+    # return r
+    return hex(int.from_bytes(inp, 'big'))[2:]
 
 # def byte2int(data):
 #     output = 0

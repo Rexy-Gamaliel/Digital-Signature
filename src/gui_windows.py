@@ -1,7 +1,8 @@
 import PySimpleGUI as sg
 import os
 from gui_constants import *
-
+DEMO_DIR = os.path.abspath("src/demo")
+CONFIG_DIR = os.path.abspath("src/config")
 '''
 Windows
 '''
@@ -20,7 +21,7 @@ window_keygen = [
 			[sg.Text("Kunci Publik:")],
 			[sg.Multiline(key="keygen_public_key", size=MULTILINE_SIZE, disabled=True)],
 			[
-				sg.FileSaveAs(target="keygen_public_key_filename", button_text="Pilih file", size=BTN_SIZE_2, file_types=(("public key", "*.pub"),)),
+				sg.FileSaveAs(target="keygen_public_key_filename", button_text="Pilih file", size=BTN_SIZE_2, file_types=(("public key", "*.pub"),), initial_folder=CONFIG_DIR),
 				sg.Button("Simpan kunci publik", size=BTN_SIZE_2)
 			],
 			[sg.InputText(key="keygen_public_key_filename", size=INPUTTEXT_SIZE, disabled=True)]
@@ -29,7 +30,7 @@ window_keygen = [
 			[sg.Text("Kunci Privat:")],
 			[sg.Multiline(key="keygen_private_key", size=MULTILINE_SIZE, disabled=True)],
 			[
-				sg.FileSaveAs(target="keygen_private_key_filename", button_text="Pilih file", size=BTN_SIZE_2, file_types=(("private key", "*.pri"),)),
+				sg.FileSaveAs(target="keygen_private_key_filename", button_text="Pilih file", size=BTN_SIZE_2, file_types=(("private key", "*.pri"),), initial_folder=CONFIG_DIR),
 				sg.Button("Simpan kunci privat", size=BTN_SIZE_2)
 			],
 			[sg.InputText(key="keygen_private_key_filename", size=INPUTTEXT_SIZE, disabled=True)]
@@ -47,12 +48,12 @@ window_signing = [
 			[sg.Text("Buka")],
 			[sg.Text("File Dokumen:")],
 			[
-				sg.FileBrowse(target="signing_document_filename", button_text="Pilih file", size=BTN_SIZE_2), 
+				sg.FileBrowse(target="signing_document_filename", button_text="Pilih file", size=BTN_SIZE_2, initial_folder=DEMO_DIR), 
 				sg.InputText(key="signing_document_filename", disabled=True, size=BTN_SIZE_2)
 			],
 			[sg.Text("Kunci Privat:")],
 			[
-				sg.FileBrowse(target="signing_private_key_filename", button_text="Pilih file", size=BTN_SIZE_2, file_types=(("private key", "*.pri"),)), 
+				sg.FileBrowse(target="signing_private_key_filename", button_text="Pilih file", size=BTN_SIZE_2, file_types=(("private key", "*.pri"),), initial_folder=CONFIG_DIR), 
 				sg.InputText(key="signing_private_key_filename", disabled=True, size=BTN_SIZE_2, enable_events=True)
 			],
 			[sg.Multiline(key="signing_private_key", disabled=True, size=MULTILINE_SIZE)]
@@ -65,14 +66,14 @@ window_signing = [
 				sg.Column([
 					[sg.Text("File Dokumen:")],
 					[
-						sg.FileSaveAs(target="signing_result_document_filename", button_text="Pilih file", size=BTN_SIZE_2), 
+						sg.FileSaveAs(target="signing_result_document_filename", button_text="Pilih file", size=BTN_SIZE_2, initial_folder=DEMO_DIR), 
 						sg.InputText(key="signing_result_document_filename", disabled=True, size=BTN_SIZE_2)
 					]
 				], key="signing_signature_option_container_1"),
 				sg.Column([
 					[sg.Text("File Tanda Tangan:", key="signature_text")],
 					[
-						sg.FileSaveAs(target="signing_signature_filename", button_text="Pilih file", size=BTN_SIZE_2, file_types=(("digital signature", "*.sgn"),)),
+						sg.FileSaveAs(target="signing_signature_filename", button_text="Pilih file", size=BTN_SIZE_2, file_types=(("digital signature", "*.sgn"),), initial_folder=DEMO_DIR),
 						sg.InputText(key="signing_signature_filename", disabled=True, size=BTN_SIZE_2)
 					]
 				], key="signing_signature_option_container_2", visible=False)
@@ -94,21 +95,21 @@ window_verifying = [
 		[sg.Column([
 			[sg.Text("File Dokumen:")],
 			[
-				sg.FileBrowse(target="verifying_document_filename", button_text="Pilih File", size=BTN_SIZE_2), 
+				sg.FileBrowse(target="verifying_document_filename", button_text="Pilih File", size=BTN_SIZE_2, initial_folder=DEMO_DIR), 
 				sg.InputText(key="verifying_document_filename", disabled=True, size=BTN_SIZE_2)
 			],
 		])],
 		[sg.Column([
 			[sg.Text("File Tanda Tangan:")],
 			[
-				sg.FileBrowse(target="verifying_signature_filename", button_text="Pilih file", size=BTN_SIZE_2, file_types=(("digital signature", "*.sgn"),)), 
+				sg.FileBrowse(target="verifying_signature_filename", button_text="Pilih file", size=BTN_SIZE_2, file_types=(("digital signature", "*.sgn"),), initial_folder=DEMO_DIR), 
 				sg.InputText(key="verifying_signature_filename", disabled=True, size=BTN_SIZE_2)
 			]
 		], key="verifying_signature_picker_container")],
 		[sg.Column([
 			[sg.Text("Kunci Publik:")],
 			[
-				sg.FileBrowse(target="verifying_public_key_filename", button_text="Pilih File", size=BTN_SIZE_2, file_types=(("public key", "*.pub"),)), 
+				sg.FileBrowse(target="verifying_public_key_filename", button_text="Pilih File", size=BTN_SIZE_2, file_types=(("public key", "*.pub"),), initial_folder=CONFIG_DIR), 
 				sg.InputText(key="verifying_public_key_filename", disabled=True, size=BTN_SIZE_2, enable_events=True)
 			],
 			[sg.Multiline(key="verifying_public_key", size=MULTILINE_SIZE)]

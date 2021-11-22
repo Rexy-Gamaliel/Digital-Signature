@@ -60,10 +60,10 @@ def run_gui():
 			handle_event_keygen(window, cur_values, ecc)
 
 		if "Simpan kunci privat" in cur_events:
-			handle_event_save_private_key(cur_values)
+			handle_event_save_private_key(cur_values, ecc)
 
 		if "Simpan kunci publik" in cur_events:
-			handle_event_save_public_key(cur_values)
+			handle_event_save_public_key(cur_values, ecc)
 
 		# signing handlers
 

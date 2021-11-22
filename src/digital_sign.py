@@ -3,16 +3,18 @@ from sha import SHA, SHAEncoder
 from ecc import ECC, ECCEncoder
 import utility as util
 from constant import TEST_DIR, CONFIG_DIR, BEGIN_SIGN, END_SIGN
+from constant import ECC_ENCRYPTION_OUTPUT_FILE, ECC_DECRYPTION_OUTPUT_FILE, ECC_TEST_INPUT_FILE
+from constant import ECC_CONFIG_FILE, ECC_PRIVATE_KEY_FILE, ECC_PUBLIC_KEY_FILE
 
 ecc = ECC()
 ecc_encoder = ECCEncoder()
 MSG_FILE = os.path.join(TEST_DIR, "msg.txt")
 SIGNED_FILE = os.path.join(TEST_DIR, "msg-signed.txt")
 SIGN_FILE = os.path.join(TEST_DIR, "signature.sgn")
-PUB_FILE = os.path.join(CONFIG_DIR, "ecc-public.txt")
-PRI_FILE = os.path.join(CONFIG_DIR, "ecc-private.txt")
+PUB_FILE = os.path.join(CONFIG_DIR, ECC_PUBLIC_KEY_FILE)
+PRI_FILE = os.path.join(CONFIG_DIR, ECC_PRIVATE_KEY_FILE)
 ECC_INPUT = os.path.join(TEST_DIR, "ecc-input.txt")
-ECC_RESULT = os.path.join(TEST_DIR, "ecc-encrypted.txt")
+ECC_RESULT = os.path.join(TEST_DIR, ECC_ENCRYPTION_OUTPUT_FILE)
 
 ecc.initiate(generate_new_config=False, generate_new_keys=False)
 
